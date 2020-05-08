@@ -78,6 +78,7 @@ class ConnectionTestCase(TestCase):
         self.assertIsNotNone(conn)
         self.assertEqual(repr(conn), "AsyncConnection")
 
+    @unittest.skip("Client is not cached anymore")
     def test_subsequent_client_is_not_cached_when_credentials_none(self):
         with patch('inpynamodb.connection.AsyncConnection.session') as session_mock:
             session_mock.create_client.return_value._request_signer._credentials = None
@@ -95,6 +96,7 @@ class ConnectionTestCase(TestCase):
                 any_order=True
             )
 
+    @unittest.skip("Client is not cached anymore")
     def test_subsequent_client_is_cached_when_credentials_truthy(self):
         with patch('inpynamodb.connection.AsyncConnection.session', new_callable=CoroutineMock) as session_mock:
             session_mock.create_client.return_value._request_signer._credentials = True
@@ -1565,9 +1567,10 @@ class ConnectionTestCase(TestCase):
 
     async def test_connection__timeout(self):
         c = AsyncConnection(connect_timeout_seconds=5, read_timeout_seconds=10, max_pool_connections=20)
-        assert (await c.client)._client_config.connect_timeout == 5
-        assert (await c.client)._client_config.read_timeout == 10
-        assert (await c.client)._client_config.max_pool_connections == 20
+        async with c.client as client:
+            assert client._client_config.connect_timeout == 5
+            assert client._client_config.read_timeout == 10
+            assert client._client_config.max_pool_connections == 20
 
     @unittest.skip("AsyncConnection does not have _create_prepared_request() nor _sign_request()")
     def test_sign_request(self):
