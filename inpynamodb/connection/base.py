@@ -45,8 +45,8 @@ class AsyncConnection(Connection):
     def __repr__(self):
         return "AsyncConnection"
 
-    @async_property
-    async def session(self):
+    @property
+    def session(self):
         """
         Returns a valid aiobotocore session
         """
@@ -54,20 +54,18 @@ class AsyncConnection(Connection):
             self._session = aiobotocore.get_session()
         return self._session
 
-    @async_property
-    async def client(self):
+    @property
+    def client(self):
         """
         Returns a aiobotocore dynamodb client
         """
-        if not self._client or (self._client._request_signer and not self._client._request_signer._credentials):
-            config = botocore.client.Config(
+        config = botocore.client.Config(
                 connect_timeout=self._connect_timeout_seconds,
                 read_timeout=self._read_timeout_seconds,
                 max_pool_connections=self._max_pool_connections)
-            self._client = (await self.session).create_client(
-                SERVICE_NAME, self.region, endpoint_url=self.host, config=config
-            )
-        return self._client
+        return self.session.create_client(
+            SERVICE_NAME, self.region, endpoint_url=self.host, config=config
+        )
 
     async def dispatch(self, operation_name, operation_kwargs):
         """
@@ -84,7 +82,8 @@ class AsyncConnection(Connection):
         req_uuid = uuid.uuid4()
 
         self.send_pre_boto_callback(operation_name, req_uuid, table_name)
-        data = await (await self.client)._make_api_call(operation_name, operation_kwargs)
+        async with self.client as client:
+            data = await client._make_api_call(operation_name, operation_kwargs)
         self.send_post_boto_callback(operation_name, req_uuid, table_name)
 
         if data and CONSUMED_CAPACITY in data:

@@ -6,8 +6,8 @@ authors = ["sunghyun-lee <sunghyunlee@mymusictaste.com>"]
 
 [tool.poetry.dependencies]
 python = "^3.6"
-pynamodb = "4.1.0"
-aiobotocore = "^0.10.3"
+pynamodb = "^4.2.3"
+aiobotocore = "1.0.4"
 async-property = "^0.2.1"
 
 [tool.poetry.dev-dependencies]

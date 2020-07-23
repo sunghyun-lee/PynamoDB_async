@@ -37,7 +37,7 @@ class ConnectionTestCase(TestCase):
             aws_secret_access_key='secret_access_key'
         )
 
-        credentials = (await conn.connection.session).get_credentials()
+        credentials = await conn.connection.session.get_credentials()
 
         self.assertEqual(credentials.access_key, 'access_key_id')
         self.assertEqual(credentials.secret_key, 'secret_access_key')
@@ -50,7 +50,7 @@ class ConnectionTestCase(TestCase):
             aws_session_token='session_token'
         )
 
-        credentials = (await conn.connection.session).get_credentials()
+        credentials = await conn.connection.session.get_credentials()
 
         self.assertEqual(credentials.access_key, 'access_key_id')
         self.assertEqual(credentials.secret_key, 'secret_access_key')

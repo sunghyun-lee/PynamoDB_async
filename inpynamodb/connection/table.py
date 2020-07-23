@@ -7,6 +7,7 @@ class TableConnection(object):
     """
     A higher level abstraction over aiobotocore
     """
+
     def __init__(self, table_name, connection):
         self._hash_keyname = None
         self._range_keyname = None
@@ -39,11 +40,11 @@ class TableConnection(object):
         )
 
         if aws_access_key_id and aws_secret_access_key:
-            (await connection.session).set_credentials(aws_access_key_id,
-                                                       aws_secret_access_key,
-                                                       aws_session_token)
+            connection.session.set_credentials(aws_access_key_id,
+                                               aws_secret_access_key,
+                                               aws_session_token)
 
-        return cls(table_name,  connection)
+        return cls(table_name, connection)
 
     async def get_meta_table(self, refresh=False):
         """
